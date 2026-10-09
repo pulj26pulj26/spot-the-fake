@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>真假画廊 · 小评委大挑战</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:#FFF9EF;color:#33261A;font-family:"PingFang SC","Microsoft YaHei",sans-serif}
+body{min-height:100vh}
+#app{max-width:680px;margin:0 auto;padding:16px 14px 40px}
+.hidden{display:none !important}
+/* ---------- 通用 ---------- */
+.kicker{font-size:13px;color:#E8703A;letter-spacing:2px;font-weight:700}
+h1{font-size:30px;line-height:1.3;margin:8px 0 6px}
+.sub{font-size:16px;color:#8A7A66;line-height:1.7}
+.btn{display:block;width:100%;border:none;border-radius:16px;padding:16px;font-size:18px;font-weight:700;cursor:pointer;transition:transform .08s;box-shadow:0 4px 0 rgba(51,38,26,.15)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(51,38,26,.15)}
+.btn-orange{background:#E8703A;color:#fff}
+.btn-green{background:#3F7A5A;color:#fff}
+.soft{background:#F6EBD8;border-radius:16px;padding:16px}
+/* ---------- 开始页 ---------- */
+.hero{background:#F6EBD8;border:2px solid #EAD9BE;border-radius:20px;padding:22px 18px;margin:14px 0;text-align:center}
+.hero .gal{font-size:64px;line-height:1.2}
+.rule{display:flex;gap:10px;align-items:flex-start;background:#fff;border:2px solid #EAD9BE;border-radius:14px;padding:12px 14px;margin:10px 0;font-size:15px;line-height:1.55}
+.rule .ico{font-size:24px;flex:none}
+/* ---------- 游戏页 ---------- */
+.hud{display:flex;justify-content:space-between;align-items:center;margin:6px 2px 12px;font-size:14px;color:#8A7A66}
+.hud .shelf{font-size:20px;letter-spacing:4px}
+.bubble{position:relative;background:#fff;border:2px solid #EAD9BE;border-radius:16px;padding:12px 16px;font-size:16px;line-height:1.6;margin:8px 0 14px;min-height:58px}
+.bubble:before{content:"";position:absolute;top:-10px;left:28px;width:16px;height:16px;background:#fff;border-left:2px solid #EAD9BE;border-top:2px solid #EAD9BE;transform:rotate(45deg)}
+.bubble .who{font-size:12px;font-weight:700;margin-bottom:2px}
+.bubble.painter .who{color:#E8703A}
+.bubble.judge{background:#3F7A5A;border-color:#3F7A5A;color:#fff}
+.bubble.judge:before{background:#3F7A5A;border-color:#3F7A5A}
+.bubble.judge .who{color:#F4B942}
+.wall{display:flex;gap:12px;margin:4px 0 12px}
+.frame{flex:1;background:#fff;border:3px solid #B98A4E;border-radius:10px;padding:8px;cursor:pointer;box-shadow:0 4px 10px rgba(51,38,26,.12);transition:transform .1s;position:relative}
+.frame:active{transform:scale(.96)}
+.frame svg{display:block;width:100%;height:auto;border-radius:4px}
+.frame .tag{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);background:#33261A;color:#FFF9EF;font-size:12px;padding:2px 10px;border-radius:999px;white-space:nowrap}
+.frame.shake{animation:shk .4s}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.frame.caught{border-color:#E8543F;box-shadow:0 0 0 4px rgba(232,84,63,.25)}
+.stamp{position:absolute;top:14px;right:14px;background:#E8543F;color:#fff;font-weight:700;font-size:14px;padding:4px 10px;border-radius:6px;transform:rotate(8deg)}
+.progress{font-size:13px;color:#8A7A66;text-align:center;margin-bottom:10px}
+/* ---------- 覆盖层 ---------- */
+#overlay{position:fixed;inset:0;background:rgba(51,38,26,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
+.ov-card{background:#FFF9EF;border-radius:22px;padding:26px 22px;max-width:420px;width:100%;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.ov-card .big{font-size:66px;line-height:1.2}
+.ov-card h2{font-size:24px;margin:8px 0 6px}
+.ov-card p{font-size:15px;color:#8A7A66;line-height:1.7;margin-bottom:16px}
+/* ---------- 证书页 ---------- */
+.cert{background:#fff;border:3px solid #E8703A;border-radius:20px;padding:26px 20px;text-align:center;margin-top:14px;position:relative}
+.cert:before{content:"";position:absolute;inset:7px;border:2px dashed #EAD9BE;border-radius:14px;pointer-events:none}
+.cert .crown{font-size:54px}
+.cert h2{font-size:23px;margin:8px 0 2px;color:#E8703A}
+.cert .cname{font-size:17px;font-weight:700;margin:4px 0 12px}
+.cert .stats{display:flex;justify-content:center;gap:14px;margin:12px 0}
+.cert .stat{background:#F6EBD8;border-radius:12px;padding:10px 16px;font-size:14px}
+.cert .stat b{display:block;font-size:22px;color:#3F7A5A}
+.cert .motto{font-size:14px;color:#8A7A66;line-height:1.7;margin:10px 0 16px}
+.cert .badges{font-size:34px;letter-spacing:8px;margin:6px 0}
+.footer{text-align:center;font-size:12px;color:#B7A98F;margin-top:22px}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- 开始页 -->
+  <section id="scr-start">
+    <div class="kicker">和孩子一起学AI · AI十哲 第五课</div>
+    <h1>真假画廊<br>小评委大挑战</h1>
+    <div class="sub">一个 AI 画画，一个 AI 挑刺——<br>今晚，你就是最厉害的小评委！</div>
+    <div class="hero">
+      <div class="gal">🖼️🔍</div>
+      <div class="sub" style="color:#33261A;font-weight:700">小画家把两幅画挂上了墙<br>一幅是真的，一幅藏着破绽</div>
+    </div>
+    <div class="rule"><div class="ico">👀</div><div><b>看仔细</b>：两幅画并排挂，认真比对每一个细节</div></div>
+    <div class="rule"><div class="ico">👉</div><div><b>点假画</b>：觉得哪幅是假的，就点它！点错了也没关系</div></div>
+    <div class="rule"><div class="ico">💪</div><div><b>看进步</b>：被你抓住破绽，小画家会立刻改画——你们一起变强</div></div>
+    <div style="height:14px"></div>
+    <button class="btn btn-orange" id="btn-start">推开画廊大门 🚪</button>
+  </section>
+
+  <!-- 游戏页 -->
+  <section id="scr-game" class="hidden">
+    <div class="hud">
+      <span id="hud-level">第一展厅 · 苹果展厅</span>
+      <span class="shelf" id="hud-shelf"></span>
+    </div>
+    <div class="progress" id="hud-progress">第 1 / 4 幅</div>
+    <div class="bubble painter"><div class="who">🎨 小画家（生成器）</div><div id="bub-painter"></div></div>
+    <div class="wall" id="wall"></div>
+    <div class="bubble judge"><div class="who">🔍 小评委（判别器·就是你）</div><div id="bub-judge"></div></div>
+    <div style="height:10px"></div>
+    <button class="btn btn-green hidden" id="btn-next">看小画家改得怎样 →</button>
+  </section>
+
+  <!-- 证书页 -->
+  <section id="scr-cert" class="hidden">
+    <div class="cert">
+      <div class="crown">🏆</div>
+      <h2>GAN 金牌对抗教练证书</h2>
+      <div class="cname">授予：火眼金睛的小评委</div>
+      <div class="badges" id="cert-badges"></div>
+      <div class="stats">
+        <div class="stat"><b id="st-caught">0</b>揪出赝品</div>
+        <div class="stat"><b id="st-miss">0</b>看走眼次数</div>
+      </div>
+      <div class="motto">你挑一次刺，小画家就改一笔——<br>一个造假、一个鉴假，互相较劲、一起变强。<br>这就是「生成对抗网络 GAN」的秘密！</div>
+      <button class="btn btn-orange" id="btn-restart">再玩一次 🔁</button>
+    </div>
+    <div class="footer">截图发到群里，找老师领纸质奖状哦 🏅</div>
+  </section>
+
+</div>
+
+<!-- 覆盖层 -->
+<div id="overlay" class="hidden"><div class="ov-card" id="ov-card"></div></div>
+
+<script>
+(function(){
+"use strict";
+var AUTOTEST = location.search.indexOf('autotest') >= 0;
+var $ = function(id){ return document.getElementById(id); };
+
+/* ================= 数据 ================= */
+var REAL_APPLE = {shape:'round', color:'#E8543F', stem:true, stemColor:'#8A5A33', leaf:true, highlight:true, stemTilt:'right'};
+var REAL_CAT   = {tail:true, ears:2, whiskers:3, eyes:2};
+
+var LEVELS = [
+  {
+    name:'第一展厅 · 苹果展厅', kind:'apple',
+    badge:{icon:'🔍', name:'实习评委'},
+    intro:{icon:'🍎', title:'第一展厅 · 苹果展厅', text:'小画家刚学画苹果，破绽百出。小评委，找出那幅假画！'},
+    rounds:[
+      {taunt:'看我画的苹果，是不是超棒？',
+       flaw:{shape:'square', color:'#5B8FD9', stem:true, stemColor:'#8A5A33', leaf:true, highlight:true, stemTilt:'right'},
+       why:'苹果怎么是方方的、蓝蓝的？苹果是圆圆的、红红的！',
+       improve:'呜呜，被你一眼看穿了……我回去改！'},
+      {taunt:'这次圆圆的、红红的，没毛病了吧？',
+       flaw:{shape:'round', color:'#E8543F', stem:false, stemColor:'#8A5A33', leaf:true, highlight:true, stemTilt:'right'},
+       why:'咦，苹果上面的梗呢？没有梗的苹果可摘不下来！',
+       improve:'啊……梗忘了画！马上补上！'},
+      {taunt:'梗补上了！这次总行了吧？',
+       flaw:{shape:'round', color:'#E8543F', stem:true, stemColor:'#5B8FD9', leaf:true, highlight:true, stemTilt:'right'},
+       why:'梗怎么是蓝色的？苹果梗是棕色的呀！',
+       improve:'连梗的颜色都逃不过你的眼睛！'},
+      {taunt:'棕色梗！这次我检查了三遍！',
+       flaw:{shape:'round', color:'#E8543F', stem:true, stemColor:'#8A5A33', leaf:false, highlight:true, stemTilt:'right'},
+       why:'梗上那片小绿叶不见了——有叶子的苹果才新鲜！',
+       improve:'好吧……这一局你赢了！'}
+    ]
+  },
+  {
+    name:'第二展厅 · 小猫展厅', kind:'cat',
+    badge:{icon:'🏅', name:'金牌评委'},
+    intro:{icon:'🐱', title:'第二展厅 · 小猫展厅', text:'小画家进步了！破绽越来越小——小评委，眼睛放亮！'},
+    rounds:[
+      {taunt:'我新学的小猫，可爱吧？',
+       flaw:{tail:false, ears:2, whiskers:3, eyes:2},
+       why:'小猫的尾巴不见了！没尾巴怎么保持平衡呀？',
+       improve:'尾巴尾巴……下次一定记得！'},
+      {taunt:'这次有尾巴了，摇得可欢了！',
+       flaw:{tail:true, ears:1, whiskers:3, eyes:2},
+       why:'小猫只有一只耳朵！另一只耳朵去哪儿了？',
+       improve:'哎呀，耳朵也能画丢……'},
+      {taunt:'两只耳朵都画好了！',
+       flaw:{tail:true, ears:2, whiskers:0, eyes:2},
+       why:'小猫光溜溜的——胡子一根都没有！',
+       improve:'胡子那么细都被你发现了！'},
+      {taunt:'胡子也画上啦！',
+       flaw:{tail:true, ears:2, whiskers:1, eyes:2},
+       why:'只有一根胡子——小猫两边各有三根胡子呢！',
+       improve:'一根和三根你都数得出来，服了你！'}
+    ]
+  },
+  {
+    name:'大师决赛 · 巅峰对决', kind:'apple',
+    badge:{icon:'👑', name:'首席鉴赏家'},
+    intro:{icon:'🏆', title:'大师决赛', text:'小画家闭关苦练回来了！这次的假画几乎以假乱真——你能守住评委的荣誉吗？'},
+    rounds:[
+      {taunt:'哼，这次我用了秘密技法！',
+       flaw:{shape:'round', color:'#E8543F', stem:true, stemColor:'#8A5A33', leaf:true, highlight:false, stemTilt:'right'},
+       why:'真苹果上有一点小白光，这幅暗暗的——高光不见了！',
+       improve:'什么？连反光都被你盯上了？！'},
+      {taunt:'高光也加上了，认输吧！',
+       flaw:{shape:'round', color:'#E8543F', stem:true, stemColor:'#8A5A33', leaf:true, highlight:true, stemTilt:'left'},
+       why:'梗弯的方向反了——真画的梗往右弯，这幅往左！',
+       improve:'这……这都行？你是我见过最毒的评委！'},
+      {taunt:'最后一幅！我敢打赌你找不出！',
+       flaw:{shape:'round', color:'#E8873F', stem:true, stemColor:'#8A5A33', leaf:true, highlight:true, stemTilt:'right'},
+       why:'颜色偏了一点点——红苹果快变成橙苹果啦！',
+       improve:'服了！能输给这样的评委，是我的荣幸！'}
+    ]
+  }
+];
+
+/* ================= 状态 ================= */
+function freshState(){
+  return {scr:'start', level:0, round:0, phase:'idle', fake:0,
+          caught:0, mistakes:0, badges:[], done:false, overlay:false};
+}
+var S = freshState();
+
+/* ================= SVG 画作 ================= */
+function appleSVG(o){
+  var body = (o.shape==='square')
+    ? '<rect x="52" y="64" width="96" height="88" rx="10" fill="'+o.color+'"/>'
+    : '<ellipse cx="100" cy="112" rx="54" ry="48" fill="'+o.color+'"/>';
+  var stem = '';
+  if(o.stem){
+    var d = (o.stemTilt==='left') ? 'M100 68 Q 90 44 74 38' : 'M100 68 Q 110 44 126 38';
+    stem = '<path d="'+d+'" stroke="'+o.stemColor+'" stroke-width="7" fill="none" stroke-linecap="round"/>';
+  }
+  var leaf = '';
+  if(o.leaf){
+    var cx = (o.stemTilt==='left') ? 92 : 108;
+    var rot = (o.stemTilt==='left') ? -25 : 25;
+    leaf = '<ellipse cx="'+cx+'" cy="42" rx="16" ry="8" fill="#5C9E57" transform="rotate('+rot+' '+cx+' 42)"/>';
+  }
+  var hl = o.highlight ? '<ellipse cx="80" cy="96" rx="14" ry="9" fill="#ffffff" opacity="0.5"/>' : '';
+  return '<svg viewBox="0 0 200 200"><rect width="200" height="200" fill="#FDF6E9"/>'+body+stem+leaf+hl+'</svg>';
+}
+
+function catSVG(o){
+  var C = '#E8933F', IN = '#F7C98B';
+  var s = '<rect width="200" height="200" fill="#FDF6E9"/>';
+  if(o.tail){
+    s += '<path d="M140 148 Q 178 140 172 104" stroke="'+C+'" stroke-width="12" fill="none" stroke-linecap="round"/>';
+  }
+  s += '<ellipse cx="100" cy="146" rx="48" ry="34" fill="'+C+'"/>';
+  if(o.ears >= 1){ s += '<polygon points="70,58 62,26 92,44" fill="'+C+'"/><polygon points="74,52 69,34 86,44" fill="'+IN+'"/>'; }
+  if(o.ears >= 2){ s += '<polygon points="130,58 138,26 108,44" fill="'+C+'"/><polygon points="126,52 131,34 114,44" fill="'+IN+'"/>'; }
+  s += '<circle cx="100" cy="82" r="38" fill="'+C+'"/>';
+  if(o.eyes >= 1){ s += '<circle cx="86" cy="78" r="5" fill="#33261A"/>'; }
+  if(o.eyes >= 2){ s += '<circle cx="114" cy="78" r="5" fill="#33261A"/>'; }
+  s += '<polygon points="95,92 105,92 100,99" fill="#D96A4B"/>';
+  s += '<path d="M100 99 Q 100 106 92 106 M100 99 Q 100 106 108 106" stroke="#33261A" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+  var wl = o.whiskers || 0;
+  var ys = [88, 96, 104];
+  for(var i=0; i<wl && i<3; i++){
+    var y = ys[i];
+    s += '<line x1="64" y1="'+y+'" x2="30" y2="'+(y-6+i*6)+'" stroke="#8A7A66" stroke-width="2.5" stroke-linecap="round"/>';
+    s += '<line x1="136" y1="'+y+'" x2="170" y2="'+(y-6+i*6)+'" stroke="#8A7A66" stroke-width="2.5" stroke-linecap="round"/>';
+  }
+  return '<svg viewBox="0 0 200 200">'+s+'</svg>';
+}
+
+function paint(kind, opts){ return (kind==='cat') ? catSVG(opts) : appleSVG(opts); }
+function realOf(kind){ return (kind==='cat') ? REAL_CAT : REAL_APPLE; }
+
+/* ================= 打字气泡 ================= */
+var timers = [];
+function later(fn, ms){ var t = setTimeout(fn, AUTOTEST ? 20 : ms); timers.push(t); }
+function typeBubble(el, text){
+  el.textContent = '';
+  if(AUTOTEST){ el.textContent = text; return; }
+  var i = 0;
+  var iv = setInterval(function(){
+    i++;
+    el.textContent = text.slice(0, i);
+    if(i >= text.length){ clearInterval(iv); }
+  }, 28);
+  timers.push(iv);
+}
+
+/* ================= 界面切换 ================= */
+function showScr(name){
+  S.scr = name;
+  $('scr-start').classList.toggle('hidden', name!=='start');
+  $('scr-game').classList.toggle('hidden', name!=='game');
+  $('scr-cert').classList.toggle('hidden', name!=='cert');
+}
+function showOverlay(html){ $('ov-card').innerHTML = html; $('overlay').classList.remove('hidden'); S.overlay = true; }
+function hideOverlay(){ $('overlay').classList.add('hidden'); S.overlay = false; }
+
+/* ================= 游戏流程 ================= */
+function startGame(){
+  S = freshState();
+  showScr('game');
+  levelIntro();
+}
+
+function levelIntro(){
+  var L = LEVELS[S.level];
+  showOverlay(
+    '<div class="big">'+L.intro.icon+'</div>'+
+    '<h2>'+L.intro.title+'</h2>'+
+    '<p>'+L.intro.text+'</p>'+
+    '<button class="btn btn-orange" id="btn-enter">进入展厅 →</button>'
+  );
+  $('btn-enter').addEventListener('click', function(){
+    if($('overlay').classList.contains('hidden')) return;
+    hideOverlay();
+    S.round = 0;
+    dealRound();
+  });
+}
+
+function dealRound(){
+  var L = LEVELS[S.level];
+  var R = L.rounds[S.round];
+  S.phase = 'pick';
+  S.fake = AUTOTEST ? ((S.level + S.round) % 2) : Math.floor(Math.random()*2);
+
+  $('hud-level').textContent = L.name;
+  $('hud-progress').textContent = '第 ' + (S.round+1) + ' / ' + L.rounds.length + ' 幅';
+  renderShelf();
+  $('btn-next').classList.add('hidden');
+
+  var real = paint(L.kind, realOf(L.kind));
+  var fake = paint(L.kind, R.flaw);
+  var cards = (S.fake===0) ? [fake, real] : [real, fake];
+  $('wall').innerHTML =
+    '<div class="frame" id="card0"><div class="stamp hidden" id="stamp0">赝品</div>'+cards[0]+'<div class="tag">甲画廊</div></div>'+
+    '<div class="frame" id="card1"><div class="stamp hidden" id="stamp1">赝品</div>'+cards[1]+'<div class="tag">乙画廊</div></div>';
+  $('card0').addEventListener('click', function(){ pickCard(0); });
+  $('card1').addEventListener('click', function(){ pickCard(1); });
+
+  typeBubble($('bub-painter'), R.taunt);
+  typeBubble($('bub-judge'), '哪一幅是假的？点它！');
+}
+
+function pickCard(i){
+  if(S.phase !== 'pick') return;
+  if(S.overlay) return;
+  var L = LEVELS[S.level];
+  var R = L.rounds[S.round];
+  if(i === S.fake){
+    S.phase = 'judge';
+    S.caught++;
+    $('card'+i).classList.add('caught');
+    $('stamp'+i).classList.remove('hidden');
+    typeBubble($('bub-judge'), '抓到你了！' + R.why);
+    later(function(){
+      typeBubble($('bub-painter'), R.improve);
+      $('btn-next').classList.remove('hidden');
+    }, 900);
+  }else{
+    S.mistakes++;
+    var el = $('card'+i);
+    el.classList.add('shake');
+    later(function(){ el.classList.remove('shake'); }, 450);
+    typeBubble($('bub-judge'), '这幅是真的哦！再仔细比一比——颜色、形状、小零件……');
+  }
+}
+
+function nextRound(){
+  if(S.phase !== 'judge') return;
+  var L = LEVELS[S.level];
+  S.round++;
+  if(S.round < L.rounds.length){
+    dealRound();
+  }else{
+    awardBadge();
+  }
+}
+
+function awardBadge(){
+  var L = LEVELS[S.level];
+  S.phase = 'badge';
+  S.badges.push(L.badge.icon);
+  renderShelf();
+  showOverlay(
+    '<div class="big">'+L.badge.icon+'</div>'+
+    '<h2>恭喜获得「'+L.badge.name+'」徽章！</h2>'+
+    '<p>你挑一次刺，小画家就改一笔——<br>你们俩都变得更厉害了！</p>'+
+    '<button class="btn btn-green" id="btn-continue">'+(S.level < LEVELS.length-1 ? '前往下一展厅 →' : '领取证书 🏆')+'</button>'
+  );
+  $('btn-continue').addEventListener('click', function(){
+    if($('overlay').classList.contains('hidden')) return;
+    hideOverlay();
+    if(S.level < LEVELS.length-1){
+      S.level++;
+      levelIntro();
+    }else{
+      showCert();
+    }
+  });
+}
+
+function renderShelf(){
+  $('hud-shelf').textContent = S.badges.join(' ');
+}
+
+function showCert(){
+  S.done = true;
+  $('cert-badges').textContent = S.badges.join(' ');
+  $('st-caught').textContent = S.caught;
+  $('st-miss').textContent = S.mistakes;
+  showScr('cert');
+}
+
+function resetAll(){
+  for(var i=0;i<timers.length;i++){ clearTimeout(timers[i]); clearInterval(timers[i]); }
+  timers = [];
+  S = freshState();
+  hideOverlay();
+  showScr('start');
+}
+function softRestart(){
+  try{ location.reload(); }catch(e){}
+  setTimeout(resetAll, 400);
+}
+
+/* ================= 绑定 ================= */
+$('btn-start').addEventListener('click', startGame);
+$('btn-next').addEventListener('click', nextRound);
+$('btn-restart').addEventListener('click', softRestart);
+
+/* ================= 调试接口 ================= */
+window.__DBG = {
+  state: function(){
+    return {scr:S.scr, level:S.level, round:S.round, phase:S.phase, fake:S.fake,
+            caught:S.caught, mistakes:S.mistakes, badges:S.badges.slice(),
+            done:S.done, overlay:S.overlay};
+  }
+};
+})();
+</script>
+</body>
+</html>
